@@ -17,11 +17,12 @@
 <script>
 (async()=>{
   try{
-    const names=Array.from({length:12},(_,i)=>`assets/p${String(i+1).padStart(2,'0')}.txt`);
+    const names=Array.from({length:7},(_,i)=>`assets/p${String(i+1).padStart(2,'0')}.txt`);
     const parts=await Promise.all(names.map(async n=>{const r=await fetch(n,{cache:'no-store'});if(!r.ok)throw new Error(n);return r.text()}));
     const binary=atob(parts.join(''));
-    const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
-    const html=new TextDecoder('utf-8').decode(bytes);
+    const compressed=Uint8Array.from(binary,c=>c.charCodeAt(0));
+    const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const html=await new Response(stream).text();
     document.open();document.write(html);document.close();
   }catch(e){document.getElementById('error').textContent='페이지를 불러오지 못했습니다. 잠시 후 새로고침해주세요.';console.error(e)}
 })();
