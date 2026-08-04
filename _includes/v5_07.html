@@ -17,10 +17,104 @@
     if(rebuild)buildOrders();
   }
 
+  const copyPatch = [
+    ['같은 개념을 다시 설명했는데도 학생이 또 막혔습니다.', [
+      ['어디서부터 헷갈렸는지 물어본다','학생이 풀어온 과정을 보며 막힌 지점을 찾는다.'],
+      ['다른 예시로 다시 설명한다','학생이 아는 일상 예시로 바꿔 설명한다.'],
+      ['빠진 기초부터 차근차근 다시 본다','지금 문제를 풀 때 꼭 필요한 내용부터 확인한다.']]],
+    ['팀 발표를 준비하는데 한 학생이 “무슨 말을 해야 할지 모르겠어요”라고 합니다.', [
+      ['무엇이 제일 부담되는지 물어본다','내용을 정하는 게 어려운지, 사람들 앞에서 말하는 게 어려운지 들어본다.'],
+      ['짧은 발표 예시를 먼저 보여준다','처음·가운데·마지막에 무슨 말을 하면 되는지 직접 보여준다.'],
+      ['첫 문장부터 말하게 한다','완벽하게 준비하려 하지 말고 첫 문장을 바로 말해보게 한다.']]],
+    ['관심 있는 것이 자꾸 바뀌어 하나를 못 고르겠다고 합니다.', [
+      ['각각 뭐가 좋았는지 물어본다','관심이 갔던 순간과 그 이유를 하나씩 들어본다.'],
+      ['두 가지를 해볼 순서를 같이 정한다','짧게라도 둘 다 해본 뒤 비교해보게 한다.'],
+      ['오래 즐겼던 일을 떠올리게 한다','무엇을 할 때 꾸준히 즐거웠는지 돌아보게 한다.']]],
+    ['팀 활동에서 한 학생만 계속 구경하고 있습니다.', [
+      ['참여하기 어려운 이유를 물어본다','잘 모르겠는지, 맡을 일이 없는지 확인한다.'],
+      ['작은 일 하나부터 맡겨본다','지금 바로 할 수 있는 일을 같이 시작한다.'],
+      ['그 학생에게 맞는 다른 역할을 찾아본다','말하기가 어렵다면 기록이나 정리처럼 다른 방법을 제안한다.']]],
+    ['활동을 마친 학생이 “그냥 시키는 대로 했어요”라고 합니다.', [
+      ['직접 고른 것이 있었는지 물어본다','학생이 선택하거나 바꿔본 순간이 있었는지 들어본다.'],
+      ['스스로 해낸 부분을 말해준다','작더라도 학생이 직접 한 선택과 노력을 구체적으로 짚어준다.'],
+      ['같은 주제를 다른 방식으로 해보자고 한다','학생이 더 흥미를 느낄 만한 방법을 하나 제안한다.']]],
+    ['학생이 낯선 분야에 관심은 있지만 어디서 알아봐야 할지 모릅니다.', [
+      ['그 일을 하는 사람의 하루를 설명해준다','어려운 직업 용어보다 실제로 무슨 일을 하는지 말해준다.'],
+      ['처음 알아볼 순서를 같이 정한다','찾아보기·질문하기·체험하기 중 무엇부터 할지 고른다.'],
+      ['예상하지 못한 사례를 하나 보여준다','비슷한 관심을 살릴 수 있는 뜻밖의 일을 알려준다.']]],
+    ['새로운 앱이나 도구로 만든 것이 생각대로 되지 않아 학생이 손을 놓습니다.', [
+      ['어디서 잘못됐는지 같이 찾아본다','학생의 실력 탓으로 돌리기 전에 원인을 하나씩 확인한다.'],
+      ['고칠 수 있는 한 부분부터 다시 해본다','가장 쉬운 곳 하나를 바로 바꿔본다.'],
+      ['여기까지 해낸 것을 먼저 말해준다','이미 배운 것과 끝까지 해본 과정을 구체적으로 인정해준다.']]],
+    ['여러 정보를 찾아본 학생이 오히려 더 헷갈린다고 합니다.', [
+      ['선택지마다 뭐가 다른지 설명해준다','비슷해 보이는 것들을 비교해서 보여준다.'],
+      ['지금 제일 중요하게 생각하는 것을 물어본다','헷갈리는 마음을 듣고 꼭 놓치고 싶지 않은 것 하나를 찾는다.'],
+      ['직업 이름 말고 다른 방식으로 비교해본다','어떤 하루를 보내는지, 누구를 돕는지처럼 새롭게 살펴본다.']]],
+    ['아이디어는 많은데 팀이 결정을 못 해 아무것도 시작하지 못합니다.', [
+      ['먼저 할 일과 맡을 사람을 정한다','지금 할 것과 나중에 할 것을 나눠 움직이게 한다.'],
+      ['완성도가 낮아도 일단 하나 만들어본다','종이나 화면에 첫 모습을 바로 만들어본다.'],
+      ['왜 결정을 못 하는지 먼저 들어본다','팀이 부담스러워하는 부분을 줄여 시작할 수 있게 한다.']]],
+    ['활동이 끝난 뒤 학생이 더 해보고 싶지만 방법을 모르겠다고 합니다.', [
+      ['다음 일주일에 할 일을 정한다','혼자 해볼 수 있는 목표와 날짜를 같이 잡는다.'],
+      ['지금 할 수 있는 첫 행동을 바로 해본다','검색이나 준비처럼 쉬운 것부터 시작한다.'],
+      ['같은 관심을 이어갈 다른 방법을 찾아본다','비슷한 주제로 해볼 만한 활동을 새로 제안한다.']]]
+  ];
+  copyPatch.forEach((row,i)=>{
+    MODE_QUESTIONS[i].q=row[0];
+    row[1].forEach((text,j)=>Object.assign(MODE_QUESTIONS[i].options[j],{title:text[0],desc:text[1]}));
+  });
+
+  const areaCopy = [
+    ['활동이 끝났을 때 학생에게 가장 남았으면 하는 변화는?',[['어려웠던 것을 스스로 이해해본 경험','“나도 다시 해볼 수 있다”는 자신감'],['새로운 방법을 써서 무언가 완성해본 경험','친구들과 직접 해보며 느낀 성취감'],['내가 좋아하는 것과 더 알아볼 일을 찾은 것','다음에 무엇을 해볼지 떠오르는 상태']]],
+    ['한 번의 40분 활동을 맡는다면 무엇을 해보고 싶나요?',[['막힌 개념을 일상 예시로 다시 이해하기','쉬운 설명과 짧은 문제로 다시 풀어본다.'],['친구들과 아이디어를 정해 직접 만들어보기','역할을 나누고 짧게 만들어 발표해본다.'],['관심 있는 일이 실제로 어떤지 알아보기','그 일을 하는 사람의 하루와 필요한 준비를 살펴본다.']]],
+    ['지금 가장 먼저 돕고 싶은 학생은 누구인가요?',[['기초가 약해 자신감을 잃은 학생','몰라서 손을 놓기 전에 다시 이해하게 돕고 싶다.'],['새로운 앱이나 팀 활동이 낯설어 시작 못 하는 학생','작게라도 직접 해보며 익숙해지게 돕고 싶다.'],['하고 싶은 게 없고 아는 선택지가 적은 학생','여러 일을 보고 자기 관심을 찾게 돕고 싶다.']]]
+  ];
+  areaCopy.forEach((row,i)=>{AREA_QUESTIONS[i].q=row[0];row[1].forEach((text,j)=>Object.assign(AREA_QUESTIONS[i].options[j],{title:text[0],desc:text[1]}));});
+
+  Object.assign(AREAS,{
+    BASIC:{name:'기초학습',desc:'어려웠던 내용을 다시 이해하고 자신감을 되찾는 영역'},
+    FUTURE:{name:'미래역량',desc:'새로운 앱이나 방법을 써보고, 다른 사람과 함께 무언가를 완성해보는 영역'},
+    CAREER:{name:'진로탐색',desc:'내가 좋아하는 것과 세상의 여러 일을 알아보는 영역'}
+  });
+  Object.assign(EXPERIENCES,{
+    understand:{label:'어렵던 걸 이해하게 된 경험',short:'이해하게 된 계기'},
+    tool:{label:'새로운 앱이나 기술을 처음 배운 경험',short:'처음 배워보기'},
+    team:{label:'여러 사람과 역할을 나눠 해낸 경험',short:'역할을 나눠 해내기'},
+    make:{label:'생각만 하던 것을 실제로 만들어본 경험',short:'직접 만들어보기'},
+    retry:{label:'실패한 뒤 다시 해본 경험',short:'다시 해보기'},
+    career:{label:'진로를 고민하거나 바꾼 경험',short:'진로 고민'},
+    habit:{label:'작은 습관을 꾸준히 만든 경험',short:'꾸준히 해보기'},
+    communicate:{label:'낯선 사람이나 환경에 적응한 경험',short:'낯선 곳에 적응하기'}
+  });
+  Object.assign(TIE_OPTIONS,{
+    D:{title:'학생의 마음부터 물어본다',desc:'무엇이 힘든지 충분히 들어본다.'},
+    C:{title:'내 경험을 예로 들어 설명해준다',desc:'이해하기 쉬운 말로 방향을 보여준다.'},
+    F:{title:'목표와 다음 할 일을 같이 정한다',desc:'무엇부터 할지 순서를 잡아준다.'},
+    M:{title:'지금 할 수 있는 것부터 시작하게 한다',desc:'작게라도 바로 해보게 용기를 준다.'},
+    R:{title:'해낸 점부터 구체적으로 말해준다',desc:'마음을 놓고 다시 해볼 힘을 준다.'},
+    L:{title:'다른 방법을 하나 제안한다',desc:'보지 못했던 가능성을 떠올리게 한다.'}
+  });
+  MODES.M.watch='속도를 내다가 학생 대신 결정하거나 완성해주지 않도록 주의해요.';
+  ACTIVITY.BASIC.make.title='개념을 설명하는 작은 자료 만들기';
+  ACTIVITY.FUTURE.tool.title='처음 보는 앱으로 작은 것 하나 만들기';
+  ACTIVITY.FUTURE.tool.steps[0]='앱의 핵심 기능 하나만 익힌다.';
+  ACTIVITY.FUTURE.tool.steps[1]='15분 안에 눈에 보이는 것 하나를 만든다.';
+  ACTIVITY.FUTURE.team.title='역할을 나눠 작은 팀 과제 끝내기';
+  ACTIVITY.FUTURE.team.steps[2]='각자 만든 것을 합치고 함께해서 좋았던 점을 말한다.';
+  ACTIVITY.FUTURE.retry.title='잘되지 않은 것을 한 번 더 작동시키기';
+  ACTIVITY.FUTURE.career.title='내 일에서 자주 쓰는 힘 찾아보기';
+  ACTIVITY.FUTURE.habit.title='새 기술을 익히는 7일 계획 세우기';
+  ACTIVITY.FUTURE.habit.steps[2]='7일 뒤 무엇을 해낼지 정한다.';
+
+  const brand=document.querySelector('.brand');
+  if(brand) brand.innerHTML='<span class="brandLogoWrap"><img class="brandLogo" src="data:image/png;base64,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" alt="SAMSUNG DREAM CLASS · 내일은 우리의 것입니다."></span>';
+
   makeStars();buildOrders();renderIntro();
 })();
 </script>
 <style>
+  .brandLogoWrap{display:inline-flex;align-items:center;background:#f6f8ff;border-radius:9px;padding:7px 10px;box-shadow:0 7px 20px rgba(0,0,0,.18)}
+  .brandLogo{display:block;width:178px;height:auto}
   .actions{
     display:grid!important;
     grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
@@ -62,6 +156,7 @@
   }
   .actionBtn:active{transform:scale(.985)!important}
   @media(max-width:520px){
+    .brandLogo{width:158px}
     .actions{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;gap:9px!important}
   }
 </style>
