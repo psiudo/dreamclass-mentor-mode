@@ -1,0 +1,24 @@
+      <p class="fine">본 콘텐츠는 SVP CSR Fair 체험용이며 선발·평가에 사용되지 않습니다.<br>포켓몬 공식 콘텐츠와 무관한 비공식 체험입니다.</p>
+    </div>`;
+    document.getElementById('again').onclick=()=>{resetState(true);renderIntro();window.scrollTo({top:0,behavior:'smooth'})};
+    document.getElementById('share').onclick=()=>shareResult(m,area,expLabels);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  async function shareResult(m,area,expLabels){
+    const text=`나의 드림 멘토 유형은 ${m.number}번 ${m.name}!\n${m.role} · ${m.subtitle}\n관심 영역: ${area.name}\n나눌 경험: ${expLabels.join(', ')}\nhttps://psiudo.github.io/dreamclass-mentor-mode/`;
+    try{
+      if(navigator.share){await navigator.share({title:'나의 드림 멘토 유형',text,url:'https://psiudo.github.io/dreamclass-mentor-mode/'})}
+      else{await navigator.clipboard.writeText(text);showToast('결과를 복사했어요.')}
+    }catch(e){if(e && e.name!=='AbortError'){try{await navigator.clipboard.writeText(text);showToast('결과를 복사했어요.')}catch(_){showToast('공유하지 못했어요.')}}}
+  }
+  function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1700)}
+  function resetState(rebuild=true){
+    phase='intro';index=0;modeAnswers=[];areaAnswers=[];selectedExperiences=[];tieCandidates=[];
+    if(rebuild)buildOrders();
+  }
+
+  makeStars();buildOrders();renderIntro();
+})();
+</script>
+</body>
+</html>
