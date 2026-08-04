@@ -1,0 +1,21 @@
+<style>
+  .brand{display:flex;align-items:center;min-width:0}
+  .brand img.brandLogo{
+    display:block!important;
+    width:118px!important;
+    height:auto!important;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.35);
+    box-shadow:0 8px 24px rgba(0,0,0,.24);
+  }
+  @media(max-width:520px){
+    .brand img.brandLogo{width:108px!important}
+  }
+</style>
+<script>
+(() => {
+  const brand=document.querySelector('.brand');
+  if(!brand) return;
+  brand.innerHTML='<img class="brandLogo" src="assets/dreamclass-logo.svg" alt="삼성 드림클래스">';
+})();
+</script>
