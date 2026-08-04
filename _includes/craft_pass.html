@@ -1,0 +1,270 @@
+<style>
+  /* Brand lockup: integrated with the night-sky UI, not a floating white sticker. */
+  .brandWord{
+    gap:4px!important;
+    padding:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:var(--cream)!important;
+  }
+  .brandWord b{
+    display:flex!important;
+    align-items:center;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px!important;
+    font-weight:600;
+    letter-spacing:.14em!important;
+    color:#f4f7ff!important;
+    white-space:nowrap;
+  }
+  .brandWord b::before{
+    content:"";
+    width:17px;
+    height:2px;
+    margin-right:8px;
+    border-radius:99px;
+    background:linear-gradient(90deg,var(--dawn),var(--gold));
+    box-shadow:0 0 12px rgba(255,158,109,.28);
+  }
+  .brandWord span{
+    padding-left:25px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:7.5px!important;
+    letter-spacing:.15em!important;
+    color:#8998bc!important;
+    white-space:nowrap;
+  }
+
+  .option,.experience{position:relative;overflow:hidden}
+  .option::after{
+    content:"";
+    position:absolute;
+    left:0;top:13px;bottom:13px;
+    width:2px;
+    border-radius:99px;
+    background:var(--dawn);
+    opacity:0;
+    transform:scaleY(.45);
+    transition:.18s ease;
+  }
+  .option:hover::after,.option:focus-visible::after{opacity:1;transform:scaleY(1)}
+  .experience.selected{
+    border-color:rgba(255,209,102,.82)!important;
+    background-image:linear-gradient(145deg,rgba(255,209,102,.18),rgba(20,40,160,.34))!important;
+  }
+  .experience.selected::after{
+    top:10px!important;right:10px!important;
+    width:23px;height:23px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:var(--gold);
+    color:#0b1430!important;
+    font-size:12px;
+    box-shadow:0 7px 18px rgba(0,0,0,.22);
+  }
+  .continueBtn.ready{box-shadow:0 10px 28px rgba(255,209,102,.18)}
+
+  .resultBadge{margin-bottom:17px;letter-spacing:.12em}
+  .pokeType{
+    font-size:clamp(37px,9vw,50px)!important;
+    line-height:1.08!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+  .pokeSubtitle{display:flex;flex-direction:column;gap:3px;margin-bottom:11px!important}
+  .pokeSubtitle strong{font-size:17px;line-height:1.4;color:#fff}
+  .pokeSubtitle span{font-size:13px;line-height:1.55;font-weight:500;color:#bfcbed}
+  .tag.inputTag{display:none!important}
+  .resultBlock[data-kind="quote"]{
+    border-color:rgba(255,158,109,.36);
+    background:linear-gradient(145deg,rgba(255,158,109,.10),rgba(20,38,77,.92));
+  }
+  .resultBlock[data-kind="quote"] h3{color:var(--gold)}
+  .resultBlock[data-kind="activity"]{
+    border-color:rgba(83,102,230,.48);
+    background:linear-gradient(145deg,rgba(83,102,230,.11),rgba(20,38,77,.94));
+  }
+  .resultBlock[data-kind="evidence"] .trail{display:none}
+  .resultBlock[data-kind="evidence"] details{margin-top:0}
+  .resultBlock[data-kind="evidence"] details summary{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:3px 0;
+    color:#c7d2ee;
+    text-decoration:underline;
+    text-decoration-color:rgba(199,210,238,.35);
+    text-underline-offset:4px;
+  }
+  .boardCallout{padding:15px 17px!important;margin-top:15px!important}
+  .boardCallout p{display:none!important}
+  .boardCallout strong{font-size:16px!important;margin:0!important;line-height:1.5}
+  .fine{max-width:520px;margin-left:auto!important;margin-right:auto!important}
+
+  @media(max-width:520px){
+    .brandWord b{font-size:9.5px!important;letter-spacing:.11em!important}
+    .brandWord span{font-size:7px!important;letter-spacing:.11em!important}
+    .intro{padding-top:4vh!important}
+    .primary{min-width:188px;text-align:center}
+    .experience{min-height:70px!important}
+    .pokemonRow{grid-template-columns:minmax(0,1fr) 112px!important;gap:9px!important}
+    .pokemonStage{width:118px!important;height:118px!important}
+    .pokemonArt{width:110px!important;height:110px!important}
+    .pokeType{font-size:clamp(36px,10.5vw,46px)!important}
+  }
+</style>
+<script>
+(() => {
+  'use strict';
+
+  const replacements = [
+    ['이상해씨형','이상해씨'],
+    ['꼬부기형','꼬부기'],
+    ['이브이형','이브이'],
+    ['파이리형','파이리'],
+    ['럭키형','럭키'],
+    ['나옹형','냐옹'],
+    ['나옹','냐옹']
+  ];
+  const experienceLabels = new Set([
+    '어렵던 걸 이해해낸 경험','어렵던 걸 이해하게 된 경험',
+    '새로운 도구·기술을 배운 경험','새로운 앱이나 기술을 처음 배운 경험',
+    '팀에서 역할을 맞춘 경험','여러 사람과 역할을 나눠 해낸 경험',
+    '아이디어를 결과물로 만든 경험','생각만 하던 것을 실제로 만들어본 경험',
+    '실패하고 다시 시도한 경험','실패한 뒤 다시 해본 경험',
+    '진로를 고민하거나 바꾼 경험','습관을 꾸준히 만든 경험','작은 습관을 꾸준히 만든 경험',
+    '낯선 사람·환경과 소통한 경험','낯선 사람이나 환경에 적응한 경험'
+  ]);
+
+  const clean = value => typeof value === 'string'
+    ? replacements.reduce((text,[from,to]) => text.split(from).join(to), value)
+    : value;
+
+  const cleanTree = root => {
+    if (!root) return;
+    if (root.nodeType === Node.TEXT_NODE) {
+      const next=clean(root.nodeValue);
+      if(next!==root.nodeValue) root.nodeValue=next;
+      return;
+    }
+    if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_NODE) return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    let node;
+    while((node=walker.nextNode())){
+      const next=clean(node.nodeValue);
+      if(next!==node.nodeValue) node.nodeValue=next;
+    }
+    root.querySelectorAll?.('[alt],[title]').forEach(el=>{
+      ['alt','title'].forEach(attr=>{
+        if(el.hasAttribute(attr)) el.setAttribute(attr,clean(el.getAttribute(attr)));
+      });
+    });
+  };
+
+  const polish = () => {
+    const brand=document.querySelector('.brandWord');
+    if(brand && brand.dataset.polished!=='1'){
+      brand.innerHTML='<b>SAMSUNG DREAM CLASS</b><span>SVP CSR FAIR</span>';
+      brand.dataset.polished='1';
+    }
+
+    const app=document.getElementById('app');
+    if(!app) return;
+    cleanTree(app);
+
+    const intro=app.querySelector('.intro');
+    if(intro){
+      const eyebrow=intro.querySelector('.eyebrow');
+      if(eyebrow) eyebrow.textContent='2 MINUTE · MENTOR MODE';
+      const start=intro.querySelector('#start');
+      if(start) start.textContent='나의 멘토 모드 찾기';
+      const metaStrong=intro.querySelectorAll('.meta strong');
+      if(metaStrong[1]) metaStrong[1].textContent='6가지 멘토 모드';
+    }
+
+    if(app.querySelector('.experienceGrid')){
+      const hint=app.querySelector('.hint');
+      if(hint) hint.textContent='편하게 이야기할 수 있는 경험을 1~2개 골라주세요.';
+    }
+
+    const ticket=app.querySelector('.ticket');
+    if(!ticket || ticket.dataset.polished==='1') return;
+
+    const badge=ticket.querySelector('.resultBadge');
+    let number=''; let area='';
+    if(badge){
+      const match=badge.textContent.match(/BOARD NO\.\s*(\d+)\s*·\s*.*?\s*·\s*(.+)$/);
+      if(match){
+        number=match[1];area=match[2].trim();
+        badge.textContent=`MENTOR MODE ${String(number).padStart(2,'0')} · ${area}`;
+      }
+    }
+
+    const type=ticket.querySelector('.pokeType');
+    if(type) type.textContent=clean(type.textContent.replace(/^\s*\d+번\s*·\s*/,''));
+
+    const subtitle=ticket.querySelector('.pokeSubtitle');
+    if(subtitle && !subtitle.querySelector('strong')){
+      const parts=subtitle.textContent.split('·').map(x=>x.trim()).filter(Boolean);
+      const role=parts.shift()||'';
+      const tagline=parts.join(' · ');
+      subtitle.innerHTML=`<strong>${role}</strong>${tagline?`<span>${tagline}</span>`:''}`;
+    }
+
+    ticket.querySelectorAll('.tag').forEach(tag=>{
+      if(experienceLabels.has(tag.textContent.trim())) tag.classList.add('inputTag');
+    });
+
+    app.querySelectorAll('.resultBlock').forEach(block=>{
+      const h3=block.querySelector('h3');
+      if(!h3) return;
+      const label=h3.textContent.trim();
+      if(label.includes('이렇게 말해')) block.dataset.kind='quote';
+      else if(label.includes('20분 활동')) block.dataset.kind='activity';
+      else if(label.includes('10개의 도움')){
+        block.dataset.kind='evidence';
+        h3.textContent='왜 이 결과가 나왔을까?';
+        const summary=block.querySelector('details summary');
+        if(summary) summary.textContent='내가 고른 10개 답 보기';
+      }
+      else if(label.includes('이런 순간')) block.dataset.kind='strength';
+      else if(label.includes('놓치기')) block.dataset.kind='watch';
+    });
+
+    const board=app.querySelector('.boardCallout strong');
+    if(board && number && type) board.textContent=`보드에서 ${number}번 ${type.textContent.trim()} 찾기`;
+
+    const img=ticket.querySelector('.pokemonArt');
+    if(img && clean(img.alt)==='냐옹'){
+      img.alt='냐옹';
+      const fallback=img.nextElementSibling;
+      if(fallback?.classList.contains('pokemonFallback')) fallback.textContent='냐';
+    }
+
+    const fine=app.querySelector('.fine');
+    if(fine) fine.innerHTML='SVP CSR Fair 체험용 · 선발·평가와 무관합니다.<br>포켓몬 공식 콘텐츠와 무관한 비공식 체험입니다.';
+
+    ticket.dataset.polished='1';
+  };
+
+  try{
+    if(navigator.share && !navigator.share.__dcClean){
+      const nativeShare=navigator.share.bind(navigator);
+      const wrapped=data=>nativeShare({...data,title:clean(data?.title),text:clean(data?.text)});
+      wrapped.__dcClean=true;navigator.share=wrapped;
+    }
+  }catch(_){ }
+  try{
+    if(navigator.clipboard?.writeText && !navigator.clipboard.writeText.__dcClean){
+      const nativeWrite=navigator.clipboard.writeText.bind(navigator.clipboard);
+      const wrapped=text=>nativeWrite(clean(text));
+      wrapped.__dcClean=true;navigator.clipboard.writeText=wrapped;
+    }
+  }catch(_){ }
+
+  polish();
+  const app=document.getElementById('app');
+  if(app) new MutationObserver(()=>requestAnimationFrame(polish)).observe(app,{childList:true,subtree:true});
+})();
+</script>
