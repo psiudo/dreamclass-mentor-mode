@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#08132e" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="supported-color-schemes" content="dark" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -17,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;700;800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root{
+      color-scheme:only dark;
       --night:#08132e;
       --deep:#0e2358;
       --samsung:#1428a0;
@@ -25,15 +28,16 @@
       --gold:#ffd166;
       --cream:#f4f7ff;
       --muted:#a7b5d8;
-      --line:rgba(185,199,235,.22);
-      --card:rgba(255,255,255,.065);
-      --card-strong:rgba(255,255,255,.10);
+      --line:#40517a;
+      --card:#14264d;
+      --card-strong:#1a315e;
       --shadow:0 22px 70px rgba(0,0,0,.24);
       --r:16px;
       --glow:0;
     }
-    *{box-sizing:border-box}
-    html,body{min-height:100%;margin:0}
+    *{box-sizing:border-box;forced-color-adjust:none}
+    html,body{min-height:100%;margin:0;background-color:#08132e!important;color:#f4f7ff!important}
+    button,input,select,textarea{appearance:none;-webkit-appearance:none;color-scheme:dark}
     body{
       color:var(--cream);
       background:var(--night);
