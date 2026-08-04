@@ -10,3 +10,24 @@ permalink: /
 {% include v5_06.html %}
 {% include v5_07.html %}
 {% include craft_pass.html %}
+<script>
+(() => {
+  const retitle = () => {
+    const app = document.getElementById('app');
+    if (!app) return;
+    app.querySelectorAll('.resultBlock h3').forEach(h3 => {
+      if (h3.textContent.trim() === '왜 이 결과가 나왔을까?') {
+        h3.textContent = '나의 선택 다시보기';
+      }
+    });
+    app.querySelectorAll('.resultBlock details summary').forEach(summary => {
+      if (summary.textContent.trim() === '내가 고른 10개 답 보기') {
+        summary.textContent = '선택한 답 보기';
+      }
+    });
+  };
+  retitle();
+  const app = document.getElementById('app');
+  if (app) new MutationObserver(() => requestAnimationFrame(retitle)).observe(app, {childList:true, subtree:true});
+})();
+</script>
