@@ -1,0 +1,84 @@
+<script>
+(() => {
+  'use strict';
+
+  const replacements = [
+    ['이상해씨형', '이상해씨'],
+    ['꼬부기형', '꼬부기'],
+    ['이브이형', '이브이'],
+    ['파이리형', '파이리'],
+    ['럭키형', '럭키'],
+    ['나옹형', '냐옹'],
+    ['나옹', '냐옹']
+  ];
+
+  const clean = value => {
+    if (typeof value !== 'string') return value;
+    return replacements.reduce((text, [from, to]) => text.split(from).join(to), value);
+  };
+
+  const fixNode = root => {
+    if (!root) return;
+
+    if (root.nodeType === Node.TEXT_NODE) {
+      const next = clean(root.nodeValue);
+      if (next !== root.nodeValue) root.nodeValue = next;
+      return;
+    }
+
+    if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_NODE) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const next = clean(node.nodeValue);
+      if (next !== node.nodeValue) node.nodeValue = next;
+    }
+
+    const elements = root.querySelectorAll ? root.querySelectorAll('[alt],[title],[aria-label]') : [];
+    elements.forEach(el => {
+      ['alt', 'title', 'aria-label'].forEach(attr => {
+        if (!el.hasAttribute(attr)) return;
+        const value = el.getAttribute(attr);
+        const next = clean(value);
+        if (next !== value) el.setAttribute(attr, next);
+      });
+    });
+  };
+
+  fixNode(document.body);
+
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'characterData') fixNode(mutation.target);
+      mutation.addedNodes.forEach(fixNode);
+    });
+  });
+  observer.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    characterData: true
+  });
+
+  if (typeof navigator.share === 'function') {
+    const nativeShare = navigator.share.bind(navigator);
+    try {
+      Object.defineProperty(navigator, 'share', {
+        configurable: true,
+        value: data => nativeShare({
+          ...data,
+          title: clean(data && data.title),
+          text: clean(data && data.text)
+        })
+      });
+    } catch (_) {}
+  }
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    const nativeWriteText = navigator.clipboard.writeText.bind(navigator.clipboard);
+    try {
+      navigator.clipboard.writeText = text => nativeWriteText(clean(text));
+    } catch (_) {}
+  }
+})();
+</script>
