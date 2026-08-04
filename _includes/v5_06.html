@@ -60,8 +60,10 @@
               <p class="pokeSubtitle">${m.role} · ${m.subtitle}</p>
               <p class="pokeSummary">${m.summary}</p>
             </div>
-            <img class="pokemonArt" src="${artwork(m)}" alt="${m.pokemon}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'" />
-            <div class="pokemonFallback" aria-hidden="true">${m.pokemon.slice(0,1)}</div>
+            <div class="pokemonStage" style="--poke:${m.color};--poke-soft:${m.color}33;--poke-line:${m.color}88">
+              <img class="pokemonArt" src="${artwork(m)}" alt="${m.pokemon}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'" />
+              <div class="pokemonFallback" aria-hidden="true">${m.pokemon.slice(0,1)}</div>
+            </div>
           </div>
         </div>
         <div class="ticketBody">
