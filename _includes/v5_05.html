@@ -1,0 +1,111 @@
+      communicate:{title:'낯선 사람에게 아이디어를 30초로 설명하기', steps:['아이디어의 문제와 해결을 한 줄씩 적는다.','30초 안에 말할 순서로 정리한다.','서로 발표하고 가장 잘 들린 부분을 알려준다.']}
+    },
+    CAREER:{
+      understand:{title:'“어려웠지만 알게 된 일”로 직업의 실제 보여주기', steps:['내가 처음 이해하기 어려웠던 일을 고른다.','무엇을 배우며 이해하게 됐는지 말한다.','그 경험에서 쓰인 능력을 학생의 관심과 연결한다.']},
+      tool:{title:'직업마다 쓰는 도구를 비교해보기', steps:['관심 있는 분야 두 개를 고른다.','각 분야에서 자주 쓰는 도구와 이유를 찾는다.','직접 써보고 싶은 도구 하나를 정한다.']},
+      team:{title:'한 가지 결과 뒤의 여러 직무 찾아보기', steps:['익숙한 제품이나 서비스를 하나 고른다.','만드는 데 필요한 역할을 여러 개 적는다.','내가 해보고 싶은 역할과 이유를 고른다.']},
+      make:{title:'관심 직업의 하루를 3컷으로 만들기', steps:['궁금한 직업 하나를 고른다.','문제·일하는 장면·결과를 3컷으로 그린다.','더 알아볼 질문 하나를 만든다.']},
+      retry:{title:'실패와 진로가 만난 갈림길 지도', steps:['내가 실패하거나 방향을 바꾼 장면을 말한다.','그때 새로 알게 된 것을 적는다.','학생이 겪는 실패를 다음 선택으로 바꾸는 질문을 만든다.']},
+      career:{title:'나의 선택을 만든 세 장면 나누기', steps:['처음 관심을 가진 장면을 고른다.','고민하거나 바꾼 장면을 고른다.','지금도 남아 있는 기준 하나를 학생과 나눈다.']},
+      habit:{title:'직업의 하루에서 반복되는 습관 찾기', steps:['내 일이나 관심 분야의 하루를 떠올린다.','실력을 만드는 반복 행동을 하나 찾는다.','학생이 일주일 해볼 수 있는 크기로 줄인다.']},
+      communicate:{title:'현직자에게 물어볼 질문 세 개 만들기', steps:['궁금한 분야 하나를 고른다.','인터넷 검색으로 끝나지 않을 질문을 만든다.','실제 사람에게 물어볼 순서를 정한다.']}
+    }
+  };
+
+  const app = document.getElementById('app');
+  const stepnum = document.getElementById('stepnum');
+  const progressFill = document.getElementById('progressFill');
+  const toast = document.getElementById('toast');
+  const TOTAL_BASE = 14;
+  let phase = 'intro';
+  let index = 0;
+  let modeAnswers = [];
+  let areaAnswers = [];
+  let selectedExperiences = [];
+  let tieCandidates = [];
+  let optionOrders = [];
+
+  function shuffle(arr){
+    const out=[...arr];
+    for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}
+    return out;
+  }
+  function buildOrders(){
+    optionOrders = [...MODE_QUESTIONS,...AREA_QUESTIONS].map(q => shuffle(q.options));
+  }
+  function makeStars(){
+    const stars=document.getElementById('stars');
+    let html='';
+    for(let i=0;i<72;i++){
+      const size=(Math.random()*1.7+.55).toFixed(2);
+      html += `<i class="star" style="left:${(Math.random()*100).toFixed(2)}%;top:${(Math.random()*73).toFixed(2)}%;width:${size}px;height:${size}px;animation-delay:${(Math.random()*4).toFixed(2)}s"></i>`;
+    }
+    stars.innerHTML=html;
+  }
+  function answeredCount(){return modeAnswers.filter(Boolean).length + areaAnswers.filter(Boolean).length + (selectedExperiences.length?1:0)}
+  function setProgress(extra=false){
+    const count = phase==='result' ? TOTAL_BASE + (extra?1:0) : answeredCount();
+    const total = extra ? 15 : TOTAL_BASE;
+    const p = Math.min(count/total,1);
+    document.documentElement.style.setProperty('--glow',p.toFixed(3));
+    progressFill.style.width=`${p*100}%`;
+    if(phase==='intro') stepnum.textContent='';
+    else if(phase==='result') stepnum.textContent='RESULT';
+    else if(phase==='tie') stepnum.textContent='15 / 15';
+    else if(phase==='experience') stepnum.textContent='14 / 14';
+    else stepnum.textContent=`${String(count+1).padStart(2,'0')} / ${TOTAL_BASE}`;
+  }
+  function renderIntro(){
+    phase='intro';index=0;setProgress();
+    app.innerHTML=`<div class="screen intro">
+      <div class="eyebrow">SAMSUNG DREAM CLASS · CSR FAIR</div>
+      <h1>나는 학생에게<br>어떤 도움을 <em>먼저</em> 건넬까?</h1>
+      <p class="introSub">짧은 상황을 고르며 나에게 자연스러운 멘토링 성향과, 학생에게 나눌 수 있는 경험을 찾아봅니다.</p>
+      <div class="meta">
+        <div><span>QUESTION</span><strong>14개의 짧은 선택</strong></div>
+        <div><span>RESULT</span><strong>보드와 같은 6유형</strong></div>
+        <div><span>TIME</span><strong>약 2분</strong></div>
+      </div>
+      <button class="primary" id="start">시작하기</button>
+    </div>`;
+    document.getElementById('start').onclick=()=>{resetState(false);phase='mode';index=0;renderQuestion()};
+  }
+  function questionMeta(){
+    if(phase==='mode') return {label:'PART 01 · 드림클래스 장면', q:MODE_QUESTIONS[index], options:optionOrders[index], answer:modeAnswers[index]};
+    const ai=index-MODE_QUESTIONS.length;
+    return {label:'PART 02 · 마음이 가는 영역', q:AREA_QUESTIONS[ai], options:optionOrders[index], answer:areaAnswers[ai]};
+  }
+  function renderQuestion(){
+    const meta=questionMeta();setProgress();
+    app.innerHTML=`<div class="screen">
+      <div class="sectionLabel">${meta.label}</div>
+      <h2 class="question">${meta.q.q}</h2>
+      <div class="options">${meta.options.map((o,i)=>`<button class="option" data-i="${i}">
+        <span class="key">${String.fromCharCode(65+i)}</span><span><strong>${o.title}</strong><small>${o.desc}</small></span>
+      </button>`).join('')}</div>
+      <div class="navrow">${index>0?'<button class="back" id="back">이전 질문</button>':'<span></span>'}</div>
+    </div>`;
+    app.querySelectorAll('.option').forEach(btn=>btn.onclick=()=>{
+      const chosen=meta.options[+btn.dataset.i];
+      if(phase==='mode') modeAnswers[index]=chosen.mode;
+      else areaAnswers[index-MODE_QUESTIONS.length]=chosen.area;
+      index++;
+      if(index<MODE_QUESTIONS.length){phase='mode';renderQuestion();return}
+      if(index<MODE_QUESTIONS.length+AREA_QUESTIONS.length){phase='area';renderQuestion();return}
+      phase='experience';renderExperience();
+    });
+    const back=document.getElementById('back');
+    if(back) back.onclick=()=>{
+      if(phase==='area' && index===MODE_QUESTIONS.length){phase='mode'}
+      index--;
+      if(index<MODE_QUESTIONS.length){phase='mode';modeAnswers[index]=undefined}
+      else{phase='area';areaAnswers[index-MODE_QUESTIONS.length]=undefined}
+      renderQuestion();
+    };
+  }
+  function renderExperience(){
+    phase='experience';setProgress();
+    app.innerHTML=`<div class="screen">
+      <div class="sectionLabel">PART 03 · 내가 나눌 수 있는 경험</div>
+      <h2 class="question">학생에게 들려줄 수 있는 내 경험은?</h2>
+      <p class="hint">직무와 상관없이, 비교적 편하게 이야기할 수 있는 것을 최대 두 개 골라주세요.</p>
