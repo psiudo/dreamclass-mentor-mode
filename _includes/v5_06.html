@@ -1,0 +1,84 @@
+      <div class="experienceGrid">${Object.entries(EXPERIENCES).map(([k,e])=>`<button class="experience ${selectedExperiences.includes(k)?'selected':''}" data-k="${k}"><strong>${e.label}</strong></button>`).join('')}</div>
+      <div class="selectionNote" id="selectionNote"></div>
+      <button class="continueBtn ${selectedExperiences.length?'ready':''}" id="resultBtn">결과 보기</button>
+      <div class="navrow"><button class="back" id="back">이전 질문</button></div>
+    </div>`;
+    const note=document.getElementById('selectionNote');
+    const refresh=()=>{note.textContent=selectedExperiences.length?`${selectedExperiences.length}개 선택됨`:'한 개 이상 골라주세요.';const b=document.getElementById('resultBtn');b.classList.toggle('ready',selectedExperiences.length>0)};
+    app.querySelectorAll('.experience').forEach(btn=>btn.onclick=()=>{
+      const k=btn.dataset.k;
+      if(selectedExperiences.includes(k)) selectedExperiences=selectedExperiences.filter(x=>x!==k);
+      else if(selectedExperiences.length<2) selectedExperiences.push(k);
+      else{showToast('두 개까지 고를 수 있어요.');return}
+      btn.classList.toggle('selected',selectedExperiences.includes(k));refresh();setProgress();
+    });
+    document.getElementById('resultBtn').onclick=()=>{if(!selectedExperiences.length)return;resolveResult()};
+    document.getElementById('back').onclick=()=>{selectedExperiences=[];phase='area';index=MODE_QUESTIONS.length+AREA_QUESTIONS.length-1;areaAnswers[AREA_QUESTIONS.length-1]=undefined;renderQuestion()};
+    refresh();
+  }
+  function modeScores(){const s={D:0,C:0,F:0,M:0,R:0,L:0};modeAnswers.forEach(k=>{if(k)s[k]++});return s}
+  function resolveResult(){
+    const scores=modeScores();
+    const max=Math.max(...Object.values(scores));
+    tieCandidates=Object.keys(scores).filter(k=>scores[k]===max);
+    if(tieCandidates.length>1){renderTie();return}
+    renderResult(tieCandidates[0],false);
+  }
+  function renderTie(){
+    phase='tie';setProgress(true);
+    app.innerHTML=`<div class="screen">
+      <div class="sectionLabel">LAST · 한 번만 더</div>
+      <h2 class="question">학생과 단 10분이 남았다면, 나는 무엇을 먼저 할까?</h2>
+      <p class="hint">지금 더 끌리는 행동을 골라주세요.</p>
+      <div class="options">${shuffle(tieCandidates).map((k,i)=>`<button class="option" data-k="${k}"><span class="key">${String.fromCharCode(65+i)}</span><span><strong>${TIE_OPTIONS[k].title}</strong><small>${TIE_OPTIONS[k].desc}</small></span></button>`).join('')}</div>
+      <div class="navrow"><button class="back" id="back">경험 선택으로 돌아가기</button></div>
+    </div>`;
+    app.querySelectorAll('.option').forEach(btn=>btn.onclick=()=>renderResult(btn.dataset.k,true));
+    document.getElementById('back').onclick=()=>renderExperience();
+  }
+  function getArea(){
+    const s={BASIC:0,FUTURE:0,CAREER:0};areaAnswers.forEach(k=>{if(k)s[k]++});
+    const max=Math.max(...Object.values(s));const ties=Object.keys(s).filter(k=>s[k]===max);
+    if(ties.length===1)return ties[0];
+    return ties.includes(areaAnswers[2])?areaAnswers[2]:ties[0];
+  }
+  function artwork(m){return m.img}
+  function renderResult(modeKey,usedTie){
+    phase='result';setProgress(usedTie);
+    const m=MODES[modeKey];const areaKey=getArea();const area=AREAS[areaKey];
+    const expKey=selectedExperiences[0];const act=ACTIVITY[areaKey][expKey];
+    const expLabels=selectedExperiences.map(k=>EXPERIENCES[k].label);
+    const trail=modeAnswers.map((k,i)=>`<span class="trailDot" title="${i+1}번 · ${MODES[k].short}" style="background:${MODES[k].color}">${i+1}</span>`).join('');
+    const answerList=MODE_QUESTIONS.map((q,i)=>{const k=modeAnswers[i];const chosen=q.options.find(o=>o.mode===k);return `<li><b>${String(i+1).padStart(2,'0')}</b> ${chosen.title}</li>`}).join('');
+    app.innerHTML=`<div class="screen">
+      <div class="ticket">
+        <div class="ticketTop">
+          <div class="resultBadge">BOARD NO. ${m.number} · ${m.role} · ${area.name}</div>
+          <div class="pokemonRow">
+            <div class="pokeText">
+              <div class="pokeType">${m.number}번 · ${m.name}</div>
+              <p class="pokeSubtitle">${m.role} · ${m.subtitle}</p>
+              <p class="pokeSummary">${m.summary}</p>
+            </div>
+            <img class="pokemonArt" src="${artwork(m)}" alt="${m.pokemon}" loading="eager" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'" />
+            <div class="pokemonFallback" aria-hidden="true">${m.pokemon.slice(0,1)}</div>
+          </div>
+        </div>
+        <div class="ticketBody">
+          <div class="resultTags">${m.keywords.map(x=>`<span class="tag">${x}</span>`).join('')}<span class="tag">${area.name}</span>${expLabels.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+          <p style="font-size:13.5px;line-height:1.72;color:#d4dcf2;margin:0">${area.desc}</p>
+        </div>
+      </div>
+
+      <div class="resultBlock"><h3>이런 순간에 강해요</h3><p>${m.strong}</p></div>
+      <div class="resultBlock"><h3>학생에게 이렇게 말해보세요</h3><p class="quote">“${m.line}”</p></div>
+      <div class="resultBlock"><h3>내 경험으로 해볼 20분 활동</h3><p class="activityTitle">${act.title}</p><ul class="activitySteps">${act.steps.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      ${selectedExperiences[1]?`<div class="resultBlock"><h3>다른 경험으로는</h3><p>${ACTIVITY[areaKey][selectedExperiences[1]].title}</p></div>`:''}
+      <div class="resultBlock"><h3>놓치기 쉬운 점</h3><p>${m.watch}</p></div>
+      <div class="resultBlock"><h3>내가 고른 10개의 도움</h3><div class="trail">${trail}</div><details><summary>선택한 답 보기</summary><ul class="answerList">${answerList}</ul></details></div>
+
+      <div class="boardCallout">
+        <strong>보드에서 ${m.number}번 ${m.name} 칸을 찾아주세요.</strong>
+        <p>포스트잇에 <b>학생에게 나눠주고 싶은 내 경험 한 가지</b>를 적어 같은 번호 칸에 붙여주세요.</p>
+      </div>
+      <div class="actions"><button class="actionBtn fill" id="share">결과 공유</button><button class="actionBtn ghost" id="again">다시 하기</button></div>
